@@ -10,7 +10,6 @@ var getAll = (req, res, next) => {
             res.status(500).send(error);
         });
 };
-
 var getById = (req, res, next) => {
     pangolins.findOne({'_id': req.params.id}).populate('pangolins', {
         'name': 1,
@@ -25,9 +24,10 @@ var getById = (req, res, next) => {
             res.status(500).send(error);
         });
 };
+
 var addToList = async (req, res, next) => {
     const friend = await pangolins.findOne({'_id': req.params.idFriend});
-    pangolins.updateOne({'_id': req.params.id}, {"$push": {"pangolins": friend}})
+    pangolins.updateOne({'_id': req.params.id}, {"$addToSet": {"pangolins": friend}})
         .then((data) => {
             res.set('Content-Type', 'application/json');
             res.status(202).json({
@@ -43,9 +43,30 @@ var addToList = async (req, res, next) => {
             });
         });
 };
+var removeFromList = async (req, res, next) => {
+    const friend = await pangolins.findOne({'_id': req.params.idFriend});
+    console.log(friend);
+    pangolins.updateOne({'_id': req.params.id}, {"$pull": {"pangolins": friend._id}})
+        .then((data) => {
+            res.set('Content-Type', 'application/json');
+            res.status(202).json({
+                status: 202,
+                message: 'Friend removed Succesfully'
+            });
+        })
+        .catch(error => {
+            res.set('Content-Type', 'application/json');
+            console.log(error);
+            res.status(500).send({
+                status: 500,
+                message: 'Error'
+            });
+        });
+};
 
 module.exports = {
     getAll,
     getById,
     addToList,
+    removeFromList,
 };
