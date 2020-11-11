@@ -25,6 +25,23 @@ var getById = (req, res, next) => {
         });
 };
 
+var update = async (req, res, next) =>{
+    try {
+        let updated = {
+            name: req.body.name,
+            breed: req.body.breed,
+            weight: req.body.weight,
+        };
+        await pangolins.findOneAndUpdate({ _id: req.body._id }, updated);
+        pangolins.find({ _id: req.body._id }).then((data) => {
+            return res.json(data);
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("server error");
+    }
+};
+
 var addToList = async (req, res, next) => {
     const friend = await pangolins.findOne({'_id': req.params.idFriend});
     pangolins.updateOne({'_id': req.params.id}, {"$addToSet": {"pangolins": friend}})
@@ -67,6 +84,7 @@ var removeFromList = async (req, res, next) => {
 module.exports = {
     getAll,
     getById,
+    update,
     addToList,
     removeFromList,
 };
