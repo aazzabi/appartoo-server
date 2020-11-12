@@ -1,5 +1,6 @@
 var pangolins = require('../models/Pangolin');
 var mongoose = require('mongoose');
+const bcrypt = require("bcryptjs");
 
 var getAll = (req, res, next) => {
     pangolins.find()
@@ -27,12 +28,27 @@ var getById = (req, res, next) => {
 
 var update = async (req, res, next) => {
     try {
-        let updated = {
-            name: req.body.name,
-            breed: req.body.breed,
-            weight: req.body.weight,
-        };
-        await pangolins.findOneAndUpdate({_id: req.body._id}, updated);
+        if (req.body.password) {
+            const salt = await bcrypt.genSalt(10); //the more you have , the more secure but the more slower
+            const updated = {
+                name: req.body.name,
+                pseudo: req.body.pseudo,
+                breed: req.body.breed,
+                weight: req.body.weight,
+                password: await bcrypt.hash(req.body.password, salt),
+            };
+            console.log(req.body, 'BODY1')
+            await pangolins.updateOne({_id: req.body._id}, updated);
+        } else {
+            const updated = {
+                name: req.body.name,
+                pseudo: req.body.pseudo,
+                breed: req.body.breed,
+                weight: req.body.weight,
+            };
+            console.log(req.body, 'BODY2')
+            await pangolins.updateOne({_id: req.body._id}, updated);
+        }
         pangolins.find({_id: req.body._id}).then((data) => {
             return res.json(data);
         });
@@ -43,7 +59,7 @@ var update = async (req, res, next) => {
 };
 
 var addToList = async (req, res, next) => {
-    const friend = await pangolins.findOne({'_id': req.params.idFriend});
+    const friend = await pangolins.findOne({'pseudo': req.params.pseudo});
     pangolins.updateOne({'_id': req.params.id}, {"$addToSet": {"pangolins": friend}})
         .then((data) => {
             res.set('Content-Type', 'application/json');
@@ -84,7 +100,10 @@ var removeFromList = async (req, res, next) => {
 var getAllUnknownPangolin = async (req, res, next) => {
     var p = await pangolins.findOne({'_id': req.params.id});
     console.log(p.pangolins);
-    pangolins.find({'_id': {'$nin': p.pangolins}}).then((data) => {
+    var list = new Array();
+    list = p.pangolins;
+    list.push(p);
+    pangolins.find({'_id': {'$nin': list}}).then((data) => {
         res.set('Content-Type', 'application/json');
         res.status(202).json(data);
     })
