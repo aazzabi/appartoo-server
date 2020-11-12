@@ -8,4 +8,6 @@ router.put('/update', pangolinsController.update);
 router.post('/addToList/:id/:idFriend', pangolinsController.addToList);
 router.post('/removeFromList/:id/:idFriend', pangolinsController.removeFromList);
 
+router.get('/getAllUnknownPangolin/:id', pangolinsController.getAllUnknownPangolin);
+
 module.exports = router;

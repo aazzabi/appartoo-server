@@ -25,15 +25,15 @@ var getById = (req, res, next) => {
         });
 };
 
-var update = async (req, res, next) =>{
+var update = async (req, res, next) => {
     try {
         let updated = {
             name: req.body.name,
             breed: req.body.breed,
             weight: req.body.weight,
         };
-        await pangolins.findOneAndUpdate({ _id: req.body._id }, updated);
-        pangolins.find({ _id: req.body._id }).then((data) => {
+        await pangolins.findOneAndUpdate({_id: req.body._id}, updated);
+        pangolins.find({_id: req.body._id}).then((data) => {
             return res.json(data);
         });
     } catch (err) {
@@ -81,10 +81,27 @@ var removeFromList = async (req, res, next) => {
         });
 };
 
+var getAllUnknownPangolin = async (req, res, next) => {
+    var p = await pangolins.findOne({'_id': req.params.id});
+    console.log(p.pangolins);
+    pangolins.find({'_id': {'$nin': p.pangolins}}).then((data) => {
+        res.set('Content-Type', 'application/json');
+        res.status(202).json(data);
+    })
+        .catch(error => {
+            res.set('Content-Type', 'application/json');
+            console.log(error);
+            res.status(500).send({
+                status: 500,
+                message: 'Error'
+            });
+        });
+};
 module.exports = {
     getAll,
     getById,
     update,
     addToList,
     removeFromList,
+    getAllUnknownPangolin,
 };
