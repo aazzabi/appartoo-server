@@ -16,7 +16,9 @@ var getById = (req, res, next) => {
         'name': 1,
         'pseudo': 1,
         'weight': 1,
-        'breed': 1
+        'breed': 1,
+        'address': 1,
+        'phone': 1
     })
         .then((data) => {
             res.status(202).json(data);
@@ -34,6 +36,8 @@ var update = async (req, res, next) => {
                 name: req.body.name,
                 pseudo: req.body.pseudo,
                 breed: req.body.breed,
+                phone: req.body.phone,
+                address: req.body.address,
                 weight: req.body.weight,
                 password: await bcrypt.hash(req.body.password, salt),
             };
@@ -43,6 +47,8 @@ var update = async (req, res, next) => {
             const updated = {
                 name: req.body.name,
                 pseudo: req.body.pseudo,
+                phone: req.body.phone,
+                address: req.body.address,
                 breed: req.body.breed,
                 weight: req.body.weight,
             };
@@ -59,8 +65,9 @@ var update = async (req, res, next) => {
 };
 
 var addToList = async (req, res, next) => {
-    const friend = await pangolins.findOne({'pseudo': req.params.pseudo});
-    pangolins.updateOne({'_id': req.params.id}, {"$addToSet": {"pangolins": friend}})
+    console.log(req.params.idPang);
+    const friend = await pangolins.findOne({'_id': req.params.idPang});
+    pangolins.updateOne({'_id': req.params.id}, {"$push": {"pangolins": friend}})
         .then((data) => {
             res.set('Content-Type', 'application/json');
             res.status(202).json({
@@ -78,7 +85,6 @@ var addToList = async (req, res, next) => {
 };
 var removeFromList = async (req, res, next) => {
     const friend = await pangolins.findOne({'_id': req.params.idFriend});
-    console.log(friend);
     pangolins.updateOne({'_id': req.params.id}, {"$pull": {"pangolins": friend._id}})
         .then((data) => {
             res.set('Content-Type', 'application/json');

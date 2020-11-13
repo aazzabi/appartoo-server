@@ -37,6 +37,8 @@ var login = async (req, res) => {
             pangolin: {
                 id: pangolin.id,
                 name: pangolin.name,
+                phone: pangolin.phone,
+                address: pangolin.address,
                 pseudo: pangolin.pseudo,
                 breed: pangolin.breed,
                 weight: pangolin.weight
@@ -66,7 +68,7 @@ register = async (req, res) => {
         });
     }
 
-    const {name, pseudo, password, weight, breed} = req.body;
+    const {name, pseudo, password, weight, breed, phone, address} = req.body;
 
     try {
         // See if pangolin exists
@@ -81,6 +83,8 @@ register = async (req, res) => {
             name,
             pseudo,
             password,
+            phone,
+            address,
             weight,
             breed
         });
@@ -97,6 +101,8 @@ register = async (req, res) => {
             pangolin: {
                 name: pangolin.name,
                 pseudo: pangolin.pseudo,
+                address: pangolin.address,
+                phone: pangolin.phone,
                 breed: pangolin.breed,
                 weight: pangolin.weight
             }
